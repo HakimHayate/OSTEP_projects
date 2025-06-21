@@ -1,0 +1,4 @@
+I'm currently reading OSTEP book and 1 of the projects recommended by the author is to create a mini shell (called wish), so I decided to make one myself to help me understand better how shell actually works.
+
+21/06/25: Start DAY
+->  Just added 1 command (ls cmd) to get started. Not bad for a start.
