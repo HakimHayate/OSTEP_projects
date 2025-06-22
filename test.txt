@@ -1,1 +1,0 @@
-path /bin added to search path
