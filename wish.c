@@ -14,8 +14,8 @@ int main(int argv, char **argc) {
 	size_t n;	
 	char current_dir_path[PATH_MAX];
 	char *search_path[SEARCH_MAX];
-	 
-	char *tokens[n];
+	char * cmds[100];
+	char *tokens[100];
 	int nb_path = 0;
 	getcwd(current_dir_path, PATH_MAX);
 	printf("%s > ", current_dir_path);
@@ -44,68 +44,91 @@ int main(int argv, char **argc) {
 			close(fd);
 
 		}
-		// Parse input command
-		int i =0;
-		char *token = strtok(cmd, " "); 
-		while (token != NULL && i<n){
-			tokens[i++] = token;
-			token = strtok(NULL, " ");
-		}
-		tokens[i] = NULL;
-		// Command exit
-		if (strcmp(tokens[0], "exit")==0) exit(0);
-		// Cmd cd
-		else if (strcmp(tokens[0], "cd")==0) {
-			char *path = malloc(strlen(current_dir_path) + strlen(tokens[1]) + 2);
-			if (!path) {
-				perror("error malloc");
-				exit(1);
+        // Parallel commands
+		if (strchr(cmd, '&')) {
+			int j = 0;
+		   	char *temp = strtok(cmd, "&");
+			while (temp) {
+				cmds[j++] = temp;
+				temp = strtok(NULL, "&");
 			}
-			sprintf(path, "%s/%s", current_dir_path, tokens[1]);
-			if (chdir(path)<0){
-					perror("cd");
-					exit(1);
-				}
-
+			cmds[j] = NULL;
 		}
-		else if (strcmp(tokens[0], "path") == 0) {
-			nb_path = 0;
-			for (int i= 1, j=0; tokens[i]; i++, j++) {
-				nb_path++;
-				search_path[j] = malloc(strlen(tokens[i]+1));
-				if (!search_path[j]) {
-					perror("malloc");
-					exit(1);
-				}
-				stpcpy(search_path[j], tokens[i]);
-				printf("path %s added to search path\n", tokens[i]);
-			}
-		}
-		else if (strcmp(tokens[0], "getSearchPath") == 0) {
-			for (int i=0; i<nb_path;i++)
-				printf("%s \n", search_path[i]);
-			
-		}
-		// look for program in search path
 		else {
-			int rc = fork();
-			if (rc<0) {
-				perror("fork");
-				exit(1);
-			}
-			if (rc == 0) {
-				for (int j=0; j<nb_path; j++) {
-					char *path = malloc(strlen(search_path[j]) + strlen(tokens[0]+2));
-					sprintf(path, "%s/%s", search_path[j], tokens[0]);
-					execv(path, tokens);
-					}
-				printf("Command not found\n");
-				exit(1);
-				}
-			else {
-				wait(NULL);
-			}	
-		}	
+			cmds[0] = malloc(strlen(cmd+1));
+            strcpy(cmds[0], cmd);
+			cmds[1] = NULL;
+		}
+        free(cmd);
+        // Execute the commands
+        int num_procs = 0;
+		for (int k = 0; cmds[k]; k++) {
+            num_procs++;    
+            cmd = cmds[k];
+            printf("cmd = %s\n", cmd);
+            // Parse input command
+            int i =0;
+            char *token = strtok(cmd, " "); 
+            while (token != NULL){
+                tokens[i++] = token;
+                token = strtok(NULL, " ");
+            }
+            tokens[i] = NULL;
+            free(cmd);
+            // Command exit
+            if (strcmp(tokens[0], "exit")==0) exit(0);
+            // Cmd cd
+            else if (strcmp(tokens[0], "cd")==0) {
+                char *path = malloc(strlen(current_dir_path) + strlen(tokens[1]) + 2);
+                if (!path) {
+                    perror("error malloc");
+                    exit(1);
+                }
+                sprintf(path, "%s/%s", current_dir_path, tokens[1]);
+                if (chdir(path)<0){
+                        perror("cd");
+                        exit(1);
+                    }
+
+            }
+            else if (strcmp(tokens[0], "path") == 0) {
+                nb_path = 0;
+                for (int i= 1, j=0; tokens[i]; i++, j++) {
+                    nb_path++;
+                    search_path[j] = malloc(strlen(tokens[i]+1));
+                    if (!search_path[j]) {
+                        perror("malloc");
+                        exit(1);
+                    }
+                    stpcpy(search_path[j], tokens[i]);
+                    printf("path %s added to search path\n", tokens[i]);
+                }
+            }
+            else if (strcmp(tokens[0], "getSearchPath") == 0) {
+                for (int i=0; i<nb_path;i++)
+                    printf("%s \n", search_path[i]);
+            }
+            // look for program in search path
+            else {
+                int rc = fork();
+                if (rc<0) {
+                    perror("fork");
+                    exit(1);
+                }
+                if (rc == 0) {
+                    for (int j=0; j<nb_path; j++) {
+                        char *path = malloc(strlen(search_path[j]) + strlen(tokens[0]+2));
+                        sprintf(path, "%s/%s", search_path[j], tokens[0]);
+                        execv(path, tokens);
+                        }
+                    printf("Command not found\n");
+                    exit(1);
+                    }
+            }
+            for (int i = 0; tokens[i]; i++)
+                free(tokens[i]);    
+        }
+        for (int i=0; i<num_procs;i++) wait(NULL);
 		if (saved_stdout >= 0) dup2(saved_stdout, STDOUT_FILENO);
 		getcwd(current_dir_path, PATH_MAX);
 		printf("%s > ", current_dir_path);

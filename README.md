@@ -5,3 +5,5 @@ I'm currently reading OSTEP book and 1 of the projects recommended by the author
 23/06: 
 -> Added the possibility to run programs specified on the search path with arguments
 -> Fixed some bugs 
+24/06:
+-> Add parallel commands.
