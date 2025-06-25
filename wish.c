@@ -10,6 +10,8 @@
 #define SEARCH_MAX 10
 #define MAX_CMDS 100
 #define MAX_TOKENS 100
+
+// what's left: Add bash mode
 int main(int argv, char **argc) {
 	char *init_cmd = NULL;
 	size_t n;	
