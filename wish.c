@@ -22,6 +22,23 @@ int main(int argv, char **argc) {
 	int nb_path = 0;
 	getcwd(current_dir_path, PATH_MAX);
 	printf("%s > ", current_dir_path);
+    if (argv > 1) {
+        int fd = open(argc[1], 'r');
+        if (fd < 0) {
+            fprintf(stderr, "open");
+            exit(1);
+        }
+        dup2(fd, STDIN_FILENO);
+        close(fd);
+    }
+    
+    *search_path = malloc(strlen("/bin")+1); // Add /bin to search path initially
+    if (!search_path[0]) {
+        fprintf(stderr, "malloc");
+        exit(1);
+    }
+    strcpy(*search_path, "/bin");
+    nb_path++; 
 	while(getline(&init_cmd, &n, stdin) != -1) {
 
 		int saved_stdout = -1;
@@ -40,6 +57,12 @@ int main(int argv, char **argc) {
             
             saved_stdout = dup(STDOUT_FILENO);
             if (dup2(fd, STDOUT_FILENO)<0) {
+                perror("dup");
+                close(fd);
+                exit(1);
+            }
+
+            if (dup2(fd, STDERR_FILENO)) {
                 perror("dup");
                 close(fd);
                 exit(1);
@@ -143,7 +166,7 @@ int main(int argv, char **argc) {
                         execv(path, tokens);
                         free(path);
                     }
-                    printf("Command not found\n");
+                    fprintf(stderr, "Command not found");
                     exit(1);
                 }
             }
