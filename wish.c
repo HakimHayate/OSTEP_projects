@@ -11,8 +11,26 @@
 #define MAX_CMDS 100
 #define MAX_TOKENS 100
 
+void parseInput(char *cmd, char *tokens, int size, char delim) {
+    if (size < 1 || !tokens) {
+        fprintf(stderr, "can't parse imput: bad args\n");
+        exit(EXIT_FAILURE);
+    }
+     char *token = strtok(cmd, delim);
+     while (token) {
+        if (i >= size - 1) {
+            fprintf(stderr, "parseInput: size tokens small\n");
+            exit(EXIT_FAILURE);
+        }
+        tokens[i++] = token;
+        token = strtok(NULL, delim);
+     }
+     tokens[i] = NULL;
+}
+
 // what's left: Add bash mode
 int main(int argv, char **argc) {
+    int batch_mode = 0;
 	char *init_cmd = NULL;
 	size_t n;	
 	char current_dir_path[PATH_MAX];
@@ -21,8 +39,10 @@ int main(int argv, char **argc) {
 	char *tokens[MAX_TOKENS];
 	int nb_path = 0;
 	getcwd(current_dir_path, PATH_MAX);
-	printf("%s > ", current_dir_path);
+    if (!batch_mode)
+    	printf("%s > ", current_dir_path);
     if (argv > 1) {
+        batch_mode = 1;
         int fd = open(argc[1], 'r');
         if (fd < 0) {
             fprintf(stderr, "open");
@@ -62,7 +82,7 @@ int main(int argv, char **argc) {
                 exit(1);
             }
 
-            if (dup2(fd, STDERR_FILENO)) {
+            if (dup2(fd, STDERR_FILENO) < 0) {
                 perror("dup");
                 close(fd);
                 exit(1);
@@ -166,7 +186,7 @@ int main(int argv, char **argc) {
                         execv(path, tokens);
                         free(path);
                     }
-                    fprintf(stderr, "Command not found");
+                    fprintf(stderr, "Command not found\n");
                     exit(1);
                 }
             }
@@ -180,7 +200,8 @@ int main(int argv, char **argc) {
             dup2(saved_stdout, STDOUT_FILENO);
             close(saved_stdout);
         }
-		printf("%s > ", current_dir_path);
+        if (!batch_mode)
+		    printf("%s > ", current_dir_path);
 
 	}
 }

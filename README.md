@@ -5,3 +5,5 @@ I'm currently reading OSTEP book and 1 of the projects recommended by the author
 24/06: Add parallel commands.
 25/06: Fixed some bugs and some memory leaks. I'll add bash mode tomorrow
 
+I took a break to study other stuff
+02/07/2025: Reorganizing the code to look better, and adding functions to make the code more reeadable.
