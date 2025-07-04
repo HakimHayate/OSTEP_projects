@@ -12,7 +12,6 @@
 #define MAX_CMDS 100
 #define MAX_TOKENS 100
 #define MAX_LENGTH_TOKEN 100
-#define NPROCS 64
 
 char *search_path[SEARCH_MAX];
 int nums_path = 0;
