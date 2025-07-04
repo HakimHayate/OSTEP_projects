@@ -98,12 +98,12 @@ pid_t fork_cmd(char **tokens) {
 
 int main(int argc, char **argv) {
 
-	int saved_stdout = -1;
+    int saved_stdout = -1;
     int batch_mode = 0;
-	char *init_cmd = NULL;
-	size_t n;	
-	char current_dir_path[PATH_MAX];
-	char * cmds[MAX_CMDS];
+    char *init_cmd = NULL;
+    size_t n;	
+    char current_dir_path[PATH_MAX];
+    char * cmds[MAX_CMDS];
 	
     getcwd(current_dir_path, PATH_MAX);
 
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 
     add_path("/bin");        // Initialize path 
 
-	while(getline(&init_cmd, &n, stdin) != -1) {
+    while(getline(&init_cmd, &n, stdin) != -1) {
 		init_cmd[strcspn(init_cmd, "\n")] = '\0'; 	// Replace '\n' with '\0'	
         
         char *temp[MAX_TOKENS];
