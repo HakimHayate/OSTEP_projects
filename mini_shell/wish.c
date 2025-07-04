@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
             else if (strcmp(tokens[0], "cd")==0) {
 
                 if (!tokens[1]) {
-                    printf("Missing argument for cd\n");
+                    fprintf(stderr, "Missing argument for cd\n");
                     continue;
                 }
                 if (chdir(tokens[1]) < 0){
