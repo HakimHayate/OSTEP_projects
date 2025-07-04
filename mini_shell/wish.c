@@ -96,7 +96,7 @@ pid_t fork_cmd(char **tokens) {
     return rc; // return the pid of the child proc
 }
 
-// what's left: Add bash mode
+
 int main(int argc, char **argv) {
 
 	int saved_stdout = -1;
